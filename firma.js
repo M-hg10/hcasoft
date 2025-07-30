@@ -29,4 +29,14 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.get('/kullanici', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT kullanici_kodu, sifre FROM firmalar');
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Firmalar getirilemedi');
+  }
+});
+
 module.exports = router;
