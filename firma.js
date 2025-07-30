@@ -2,16 +2,6 @@ const express = require('express');
 const router = express.Router();
 const pool = require('./db');
 
-// Tüm firmaları getir
-router.get('/', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM firmalar');
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Sunucu hatası');
-  }
-});
 
 // Firma ekle
 router.post('/', async (req, res) => {
