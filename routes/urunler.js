@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('./db'); // db bağlantısı
+const pool = require('../db'); // db bağlantısı
 // const bcrypt = require('bcrypt'); // Şifreler hashli ise aç
 
 // POST: Kullanıcı kodu + şifre ile ürünleri getir
