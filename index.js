@@ -31,6 +31,9 @@ app.get('/', (req, res) => {
   });
 });
 
+const apiRoutes = require('./routes/newurunler.js');
+app.use('/api', apiRoutes);
+
 
 // Firma rotasını dahil et
 const firmaRouter = require('./firma');
