@@ -4,9 +4,25 @@ const app = express();
 // ✅ JSON body verisini almak için middleware
 app.use(express.json());
 
+app.get('/', (req, res) => {
+  res.send(`
+    <h1>🚀 API Sunucusu Başarıyla Çalışıyor</h1>
+    <p>Kullanılabilir Endpointler:</p>
+    <ul>
+      <li><code>POST /auth/register</code> – Yeni kullanıcı kaydı</li>
+      <li><code>POST /auth/login</code> – Kullanıcı girişi</li>
+    </ul>
+  `);
+});
+
 // ✅ Ürünler route'u
 const urunlerRouter = require('./routes/urunler');
+const authRoutes = require('./routes/auth');
+
 app.use('/api/urunler', urunlerRouter);
+app.use('/auth', authRoutes); // /auth/register ve /auth/login
+
+
 
 // ✅ Sunucuyu başlat (TEK bir kere çağrılmalı)
 const PORT = 3000;
