@@ -1,31 +1,40 @@
-const pool = require('../db');
+const jwt = require('jsonwebtoken');
+const pool = require('../config/db');
 
-module.exports = async (req, res, next) => {
-  const apiKey = req.headers['x-api-key'];
-  if (!apiKey) {
-    return res.status(401).json({ message: 'API anahtarı eksik' });
-  }
-
+const auth = async (req, res, next) => {
   try {
+    const token = req.header('Authorization')?.replace('Bearer ', '');
+    
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'Token gerekli'
+      });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    
     const result = await pool.query(
-      `SELECT * FROM firmalar WHERE api_key = $1 AND aktif = true`,
-      [apiKey]
+      'SELECT id, username, email, role FROM users WHERE id = $1',
+      [decoded.userId]
     );
 
     if (result.rows.length === 0) {
-      return res.status(403).json({ message: 'Geçersiz veya pasif API anahtarı' });
+      return res.status(401).json({
+        success: false,
+        message: 'Geçersiz token'
+      });
     }
 
-    // kullanıcı bilgisi middleware sonrası kullanılabilir
-    req.kullanici = result.rows[0];
+    req.user = result.rows[0];
     next();
-  } catch (err) {
-    console.error('API key kontrol hatası:', err);
-    res.status(500).json({ message: 'Sunucu hatası' });
+  } catch (error) {
+    console.error('Auth hatası:', error);
+    res.status(401).json({
+      success: false,
+      message: 'Geçersiz token'
+    });
   }
 };
 
-
-// const apiAuth = require('../middleware/auth'); // API key kontrolü
-// router.get('/:firma_id', apiAuth, async (req, res) => { ... });
-// x-api-key: *****
+module.exports = auth;
