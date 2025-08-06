@@ -77,7 +77,7 @@ router.get('/:firma_id', async (req, res) => {
         urunler.*,
         kategoriler.isim AS kategori_adi,
         alt_kategoriler.isim AS alt_kategori_adi,
-        urun_durumlari.durum AS urun_durumu,
+        urun_durumlari.ad AS urun_durumu,
         firmalar.firma_adi AS firma_adi
       FROM urunler
       LEFT JOIN kategoriler ON urunler.kategori_id = kategoriler.id
