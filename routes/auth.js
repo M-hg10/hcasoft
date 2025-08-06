@@ -53,7 +53,15 @@ router.post('/login', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'SELECT * FROM kullanicilar WHERE email = $1',
+      `SELECT 
+         k.*, 
+         f.id AS firma_id, 
+         f.firma_adi, 
+         f.adres, 
+         f.telefon
+       FROM kullanicilar k
+       LEFT JOIN firmalar f ON k.firma_id = f.id
+       WHERE k.email = $1`,
       [email]
     );
 
@@ -63,7 +71,6 @@ router.post('/login', async (req, res) => {
 
     const user = result.rows[0];
 
-    // bcrypt ile şifreyi karşılaştır
     const match = await bcrypt.compare(sifre, user.sifre);
     if (!match) {
       return res.status(401).json({ message: 'Şifre hatalı.' });
@@ -76,7 +83,13 @@ router.post('/login', async (req, res) => {
         id: user.id,
         kullanici_adi: user.kullanici_adi,
         email: user.email,
-        aktif: user.aktif
+        aktif: user.aktif,
+        firma: {
+          id: user.firma_id,
+          firma_adi: user.firma_adi,
+          adres: user.adres,
+          telefon: user.telefon
+        }
       }
     });
 
@@ -87,3 +100,4 @@ router.post('/login', async (req, res) => {
 });
 
 module.exports = router;
+
