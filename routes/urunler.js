@@ -95,3 +95,4 @@ router.get('/:firma_id', async (req, res) => {
     res.status(500).json({ message: 'Sunucu hatası' });
   }
 });
+

@@ -18,9 +18,11 @@ app.get('/', (req, res) => {
 // ✅ Ürünler route'u
 const urunlerRouter = require('./routes/urunler');
 const authRoutes = require('./routes/auth');
+const sabitlerRoutes = require('./routes/sabitler');
 
 app.use('/api/urunler', urunlerRouter);
 app.use('/auth', authRoutes); // /auth/register ve /auth/login
+app.use('/sabit', sabitlerRoutes);// firmalar,kategoriler ürün durumlarını şeker
 
 
 
