@@ -29,40 +29,40 @@ router.post('/', async (req, res) => {
 
     // Ürünü veritabanına ekle
     const result = await pool.query(
-      `INSERT INTO urunler (
-        isim,
-        aciklama,
-        kisa_aciklama,
-        aktif,
-        kategori_id,
-        marka,
-        urun_durumu_id,
-        alt_kategori_id,
-        firma_id
-        tarih
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8, CURRENT_TIMESTAMP)
-      RETURNING *`,
-      [
-        isim,
-        aciklama || null,
-        kisa_aciklama || null,
-        aktif ?? true, // Varsayılan olarak true
-        kategori_id,
-        marka || null,
-        urun_durumu_id || null,
-        alt_kategori_id || null,
-        firma_id || null
-        
-      ]
-    );
+  `INSERT INTO urunler (
+    isim,
+    aciklama,
+    kisa_aciklama,
+    aktif,
+    kategori_id,
+    marka,
+    urun_durumu_id,
+    alt_kategori_id,
+    firma_id,
+    tarih
+  ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9, CURRENT_TIMESTAMP)
+  RETURNING *`,
+  [
+    isim,
+    aciklama || null,
+    kisa_aciklama || null,
+    (aktif !== undefined) ? aktif : true,
+    kategori_id,
+    marka || null,
+    urun_durumu_id || null,
+    alt_kategori_id || null,
+    firma_id || null
+  ]
+);
 
     // Başarıyla eklenmiş ürünü döndür
     res.status(201).json(result.rows[0]);
 
   } catch (error) {
-    console.error('Ürün ekleme hatası:', error);
-    res.status(500).json({ message: 'Sunucu hatası' });
-  }
+  console.error('Ürün ekleme hatası:', error.message);
+  res.status(500).json({ message: 'Sunucu hatası', detail: error.message });
+}
+
 });
 
 module.exports = router;
