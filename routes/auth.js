@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db'); // PostgreSQL bağlantısı
 const bcrypt = require('bcryptjs');
-const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const nodemailer = require('nodemailer');
 
