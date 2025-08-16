@@ -27,12 +27,12 @@ router.post('/register', async (req, res) => {
 
     // Veritabanına ekle
     const result = await pool.query(
-      `INSERT INTO kullanicilar 
-        (kullanici_adi, email, telefon, adres_metni, aktif, sifre, firma_id,kayit_tarihi)
-       VALUES ($1, $2, $3, $4, true, $5,1 ,CURRENT_TIMESTAMP)
-       RETURNING id, kullanici_adi, email, aktif`,
-      [kullanici_adi, email, telefon || null, adres_metni || null, hashedPassword,firma_id || 1]
-    );
+  `INSERT INTO kullanicilar 
+    (kullanici_adi, email, telefon, adres_metni, aktif, sifre, firma_id, kayit_tarihi)
+   VALUES ($1, $2, $3, $4, true, $5, $6, CURRENT_TIMESTAMP)
+   RETURNING id, kullanici_adi, email, aktif`,
+  [kullanici_adi, email, telefon || null, adres_metni || null, hashedPassword, firma_id || 1]
+);
 
     res.status(201).json({
       message: 'Kullanıcı başarıyla oluşturuldu',
