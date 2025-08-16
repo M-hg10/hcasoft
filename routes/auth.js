@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../db'); // PostgreSQL bağlantısı
 const bcrypt = require('bcryptjs');
+const express = require('express');
+const { v4: uuidv4 } = require('uuid');
+const nodemailer = require('nodemailer');
 
 // Kullanıcı kayıt
 router.post('/register', async (req, res) => {
@@ -101,3 +104,72 @@ router.post('/login', async (req, res) => {
 
 module.exports = router;
 
+
+
+
+
+// Email transporter
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: 'seninmail@gmail.com',
+    pass: 'mailsifre'
+  }
+});
+
+// 1️⃣ Forgot Password
+router.post('/forgot-password', async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
+    if (!user.rows.length) return res.status(404).json({ msg: 'Email bulunamadı' });
+
+    const token = uuidv4();
+    const expires = new Date(Date.now() + 3600000); // 1 saat geçerli
+
+    await pool.query(
+      'UPDATE users SET reset_token=$1, reset_expires=$2 WHERE email=$3',
+      [token, expires, email]
+    );
+
+    const resetLink = `https://soft.hggrup.com/auth/reset-password/${token}`;
+
+    await transporter.sendMail({
+      from: '"Şifre Sıfırlama" <seninmail@gmail.com>',
+      to: email,
+      subject: 'Şifre Sıfırlama Linki',
+      html: `<p>Şifrenizi sıfırlamak için linke tıklayın: <a href="${resetLink}">${resetLink}</a></p>`
+    });
+
+    res.json({ msg: 'Şifre sıfırlama linki gönderildi' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Sunucu hatası' });
+  }
+});
+
+// 2️⃣ Reset Password
+router.post('/reset-password', async (req, res) => {
+  const { token, newPassword } = req.body;
+  try {
+    const user = await pool.query(
+      'SELECT * FROM users WHERE reset_token=$1 AND reset_expires > NOW()',
+      [token]
+    );
+    if (!user.rows.length) return res.status(400).json({ msg: 'Geçersiz veya süresi dolmuş token' });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await pool.query(
+      'UPDATE users SET password=$1, reset_token=NULL, reset_expires=NULL WHERE reset_token=$2',
+      [hashedPassword, token]
+    );
+
+    res.json({ msg: 'Şifre başarıyla güncellendi' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: 'Sunucu hatası' });
+  }
+});
+
+module.exports = router;
