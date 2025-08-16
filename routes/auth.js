@@ -133,12 +133,7 @@ router.post('/forgot-password', async (req, res) => {
 
     const resetLink = `https://soft.hggrup.com/auth/reset-password/${token}`;
 
-    await transporter.sendMail({
-      from: '"Şifre Sıfırlama" <seninmail@gmail.com>',
-      to: email,
-      subject: 'Şifre Sıfırlama Linki',
-      html: `<p>Şifrenizi sıfırlamak için linke tıklayın: <a href="${resetLink}">${resetLink}</a></p>`
-    });
+   
 
     res.json({ msg: 'Şifre sıfırlama linki gönderildi' });
   } catch (err) {
