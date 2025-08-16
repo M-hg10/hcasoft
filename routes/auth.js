@@ -120,14 +120,14 @@ const transporter = nodemailer.createTransport({
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   try {
-    const user = await pool.query('SELECT * FROM users WHERE email=$1', [email]);
+    const user = await pool.query('SELECT * FROM kullanicilar WHERE email=$1', [email]);
     if (!user.rows.length) return res.status(404).json({ msg: 'Email bulunamadı' });
 
     const token = uuidv4();
     const expires = new Date(Date.now() + 3600000); // 1 saat geçerli
 
     await pool.query(
-      'UPDATE users SET reset_token=$1, reset_expires=$2 WHERE email=$3',
+      'UPDATE kullanicilar SET reset_token=$1, reset_expires=$2 WHERE email=$3',
       [token, expires, email]
     );
 
@@ -152,7 +152,7 @@ router.post('/reset-password', async (req, res) => {
   const { token, newPassword } = req.body;
   try {
     const user = await pool.query(
-      'SELECT * FROM users WHERE reset_token=$1 AND reset_expires > NOW()',
+      'SELECT * FROM kullanicilar WHERE reset_token=$1 AND reset_expires > NOW()',
       [token]
     );
     if (!user.rows.length) return res.status(400).json({ msg: 'Geçersiz veya süresi dolmuş token' });
@@ -160,7 +160,7 @@ router.post('/reset-password', async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await pool.query(
-      'UPDATE users SET password=$1, reset_token=NULL, reset_expires=NULL WHERE reset_token=$2',
+      'UPDATE kullanicilar SET password=$1, reset_token=NULL, reset_expires=NULL WHERE reset_token=$2',
       [hashedPassword, token]
     );
 
