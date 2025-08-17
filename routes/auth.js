@@ -155,7 +155,7 @@ router.post('/reset-password', async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     await pool.query(
-      'UPDATE kullanicilar SET password=$1, reset_token=NULL, reset_expires=NULL WHERE reset_token=$2',
+      'UPDATE kullanicilar SET sifre=$1, reset_token=NULL, reset_expires=NULL WHERE reset_token=$2',
       [hashedPassword, token]
     );
 
